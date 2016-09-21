@@ -1,6 +1,6 @@
 # WC Cyclone
 
-This is a plugin that adds several WP-CLI commands for generating fake WooCommerce data. It's still in its early days and as such doesn't yet offer coupon generating, more complicated order generating and refund generating.
+This is a WordPress plugin that adds several WP-CLI commands for generating fake WooCommerce data. It's still in its early days and as such doesn't yet offer coupon generating, more complicated order generating and refund generating.
 
 ### Requires
 
