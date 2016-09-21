@@ -5,7 +5,7 @@ namespace Cyclone;
 use WP_CLI, WP_CLI_Command;
 
 /**
- * Metorik dev commands.
+ * WC Cyclone - WooCommerce data generating commands.
  */
 class Commands extends WP_CLI_Command {
 
