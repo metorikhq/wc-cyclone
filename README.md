@@ -58,6 +58,25 @@ Generate orders. `<amount>` is an integer # of orders to generate.
 
 The `from` option lets you define the # of days in the past orders should be generated from. It's a random date used, but this lets it be a random date `x` days ago. By default it's `180`.
 
+### Pro-tip
+
+Don't just sit there watching it generate data! You can have it run as a [background job](http://unix.stackexchange.com/questions/103731/run-a-command-without-making-me-wait). Simply append `&` and optionally prepend the command with `nohup` (to generate a log). For example:
+
+```
+wp cyclone orders 100000 &
+```
+
+or...
+
+```
+nohup wp cyclone orders 100000 &
+```
+
+
+### What's coming
+
+Scheduled/cron-powered generating, so you can have data generated on a random, but consistent basis.
+
 ### Contributing
 
 Contributions are definitely welcomed and encouraged. Please feel free to open a PR with any changes you think should be made.
