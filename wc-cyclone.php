@@ -10,7 +10,7 @@
 
 add_action( 'plugins_loaded', function() {
 	// Check `composer install` has been ran
-	if ( file_exists( 'vendor' ) ) { 
+	if ( file_exists( dirname( __FILE__ ) . '/vendor' ) ) { 
 		// Composer dependencies
 		require_once( 'vendor/autoload.php' );
 
