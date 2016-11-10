@@ -174,7 +174,7 @@ class Commands extends WP_CLI_Command {
 			switch($customer) {
 				case 'existing';
 					// Get random customer ID where ID is not 1 (presumed admin ID)
-					$customer = $wpdb->get_var("SELECT ID FROM $wpdb->users WHERE id <> 1 ORDER BY RAND() LIMIT 1");
+					$customer = intval($wpdb->get_var("SELECT ID FROM $wpdb->users WHERE id <> 1 ORDER BY RAND() LIMIT 1"));
 					break;
 				case 'new';
 					$customer = true;
