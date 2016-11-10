@@ -207,6 +207,8 @@ class Generate {
 			'customer_id' => absint( $user ),
 			'status' => $status,
 			'created_via' => 'wc-cyclone',
+			'customer_ip_address'  => $faker->ipv4,
+			'customer_user_agent'  => $faker->userAgent,
 		];
 		$order = wc_create_order($data);
 
