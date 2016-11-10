@@ -3,7 +3,7 @@
  * Plugin Name: WC Cyclone 
  * Plugin URI: https://metorik.com
  * Description: Generate fake data for a WooCommerce store.
- * Version: 0.1
+ * Version: 0.1.1
  * Author Name: Bryce Adams | Metorik
  * Author URI: https://bryce.se
  */
