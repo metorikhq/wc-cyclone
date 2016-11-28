@@ -2,6 +2,8 @@
 
 namespace Cyclone;
 
+use Carbon\Carbon;
+
 class Generate {
 	/**
 	 * Generate a product.
@@ -172,26 +174,31 @@ class Generate {
 		// use the factory to create a Faker\Generator instance
 		$faker = \Faker\Factory::create();
 
+		$user = false;
+		// if no customer, order is for a guest
+		if ( $customer ) {
+			// have an int, find the customer - otherwise create a customer
+			if ( is_int( $customer ) ) {
+				// find matching user
+				$wpUser = get_user_by( 'ID', $customer );
+				$user = $wpUser ? $customer : false;
+
+				// make sure $from is at most the # of days ago customer was created
+				$registeredDiff = Carbon::parse($wpUser->user_registered)->diffInDays(Carbon::now());
+				$from = $registeredDiff < $from ? $registeredDiff + 1 : $from;
+			} else {
+				$user = self::customer( $from );
+			}
+		}
+
+
 		// dates for the order/customer
 		$gmt_offset = get_option('gmt_offset');
 		$day = rand(0, $from);
 		$hour = rand(0, 23);
 		$minute = rand(1, 5);
 		$new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour") );  
-		$customer_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour -$minute minute") );  
 		$gmt_new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour -$gmt_offset hour") );
-
-		$user = false;
-		// if no customer, order is for a guest
-		if ( $customer ) {
-			// have an int, find the customer - otherwise create a customer
-			if ( is_int( $customer ) ) {
-				// only if we can find a matching user
-				$user = get_user_by( 'ID', $customer ) ? $customer : false;
-			} else {
-				$user = self::customer( $customer_date );
-			}
-		}
 
 		// figure out the order status
 		$statuses = [
