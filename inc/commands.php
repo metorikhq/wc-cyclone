@@ -159,11 +159,11 @@ class Commands extends WP_CLI_Command {
 		$from = isset($assoc_args['from']) ? $assoc_args['from'] : 90;
 
 		// Chances of it being an existing customer, new customer or guest
-		$chances = [
+		$chances = apply_filters('wc_cyclone_order_customer_chances', [
 			'existing' => 25,
 			'new' => 60,
 			'guest' => 15,
-		];
+		]);
 
 		// create progress bar
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Generating orders', $amount );
