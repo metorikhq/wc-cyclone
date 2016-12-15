@@ -226,19 +226,19 @@ class Generate {
 		}
 
 		// add random products to order
-		for ( $i = 0; $i < rand( 1, 5 ); $i++ ) {
+		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 			// get random product id & unset so we don't add twice
 			$key = rand(0, count($product_ids));
 			$id = $product_ids[$key];
 			unset($product_ids[$key]);
 
-			$quantities = [
+			$quantities = apply_filters('wc_cyclone_order_items_count', [
 				1 => 50,
 				2 => 25,
 				3 => 15,
 				4 => 8,
 				5 => 2,
-			];
+			]);
 			$quantity = Helpers::getRandomWeightedElement($quantities);
 			$order->add_product( wc_get_product($id), $quantity );
 		}
