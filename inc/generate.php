@@ -239,8 +239,11 @@ class Generate {
 				4 => 8,
 				5 => 2,
 			]);
-			$quantity = Helpers::getRandomWeightedElement($quantities);
-			$order->add_product( wc_get_product($id), $quantity );
+
+			if (is_object(wc_get_product($id))) {
+				$quantity = Helpers::getRandomWeightedElement($quantities);
+				$order->add_product( wc_get_product($id), $quantity );
+			}
 		}
 
 		// no user? let's generate guest info
