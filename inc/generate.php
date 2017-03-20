@@ -152,7 +152,8 @@ class Generate {
 			'shipping_state'        => $user['address']['state'],
 			'shipping_postcode'     => $user['address']['postcode'],
 			'shipping_email'        => $user['email'],
-			'shipping_phone'        => $user['address']['phone']
+			'shipping_phone'        => $user['address']['phone'],
+			'last_update'           => strtotime($registered),
 		);
 
 		foreach ($meta as $key => $value) {
