@@ -17,7 +17,7 @@ class Generate {
 		// Generate a product name/category etc. from a products csv based on type
 		// --- will keep going until it has a unique product title
 		do {
-			$products = file( plugin_dir_path( __FILE__ ) . '../data/products/' . $type . '.csv' ); 
+			$products = file( plugin_dir_path( __FILE__ ) . '../data/products/' . $type . '.csv' );
 			$product = explode( ',' , trim( $products[rand( 0, count( $products ) - 1 )] ) );
 			$category = ucfirst( strtolower( $product[0] ) );
 			$title = ucwords( strtolower( trim( $product[1] ) ) );
@@ -61,8 +61,8 @@ class Generate {
 			/**
 			 * Product image
 			 */
-			
-			// figure out a random matching image that's unique 
+
+			// figure out a random matching image that's unique
 			do {
 				$dir = plugin_dir_path( __FILE__ ) . '../data/products/images/' . $type . '/';
 				$images = glob($dir . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
@@ -198,25 +198,25 @@ class Generate {
 		$day = rand(0, $from);
 		$hour = rand(0, 23);
 		$minute = rand(1, 5);
-		$new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour") );  
+		$new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour") );
 		$gmt_new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour -$gmt_offset hour") );
 
 		// figure out the order status
 		$statuses = [
-			'completed' => 80,
+			'completed'  => 80,
 			'processing' => 5,
-			'on-hold' => 5,
-			'failed' => 10,
+			'on-hold'    => 5,
+			'failed'     => 10,
 		];
 
 		$status = Helpers::getRandomWeightedElement($statuses);
 		// create base order
 		$data = [
-			'customer_id' => absint( $user ),
-			'status' => $status,
-			'created_via' => 'wc-cyclone',
-			'customer_ip_address'  => $faker->ipv4,
-			'customer_user_agent'  => $faker->userAgent,
+			'customer_id'         => absint( $user ),
+			'status'              => $status,
+			'created_via'         => 'wc-cyclone',
+			'customer_ip_address' => $faker->ipv4,
+			'customer_user_agent' => $faker->userAgent,
 		];
 		$order = wc_create_order($data);
 
@@ -288,14 +288,14 @@ class Generate {
 		// @todo sometimes add fee
 
 		$order->calculate_totals();
-		$order_id = $order->id;
+		$order_id = $order->get_id();
 
 		if ( $order_id ) {
 			$gateways = [
-				'bacs' => 20,
+				'bacs'   => 20,
 				'stripe' => 40,
 				'paypal' => 30,
-				'cod' => 10,
+				'cod'    => 10,
 			];
 
 			$gateway = Helpers::getRandomWeightedElement($gateways);
@@ -321,12 +321,12 @@ class Generate {
 			if ($paid == 'paid') {
 				$id = strtoupper($gateway) . $faker->ean13;
 				$order->payment_complete($id);
-				update_post_meta( $order->id, '_paid_date', $new_date );
+				update_post_meta( $order->get_id(), '_paid_date', $new_date );
 			}
 
 			// update order date
 			wp_update_post([
-				'ID' => $order->id,
+				'ID' => $order->get_id(),
 				'post_date' => $new_date,
 				'post_modified' => $new_date,
 				'post_date_gmt' => $gmt_new_date,
