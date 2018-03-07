@@ -14,13 +14,11 @@ class Generate {
 		// use the factory to create a Faker\Generator instance
 		$faker = \Faker\Factory::create();
 
-		// Generate a product name/category etc. from a products csv based on type
+		// Generate a product title & category from Faker
 		// --- will keep going until it has a unique product title
 		do {
-			$products = file( plugin_dir_path( __FILE__ ) . '../data/products/' . $type . '.csv' );
-			$product = explode( ',' , trim( $products[rand( 0, count( $products ) - 1 )] ) );
-			$category = ucfirst( strtolower( $product[0] ) );
-			$title = ucwords( strtolower( trim( $product[1] ) ) );
+			$title = ucwords( $faker->words( 2, true ) );
+			$category = $faker->randomElement( array( 'Drama', 'Mystery', 'Romance', 'Horror', 'Travel', 'Health' ) );
 		} while( get_page_by_title( $title, 'OBJECT', 'product' ) );
 
 		// Create product
