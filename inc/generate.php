@@ -227,11 +227,15 @@ class Generate {
 		}
 
 		// add random products to order
-		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+		$count = ( count($product_ids) < 50 ? count($product_ids) : 50);
+		for ( $i = 0; $i < rand( 1, $count ); $i++ ) {
 			// get random product id & unset so we don't add twice
-			$key = rand(0, count($product_ids));
+			$key = rand(1, count($product_ids)) - 1;
 			$id = $product_ids[$key];
+
+			// unset item and reset array keys
 			unset($product_ids[$key]);
+			$product_ids = array_values($product_ids);
 
 			$quantities = apply_filters('wc_cyclone_order_items_count', [
 				1 => 50,
