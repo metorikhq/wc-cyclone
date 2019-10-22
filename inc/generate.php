@@ -338,4 +338,125 @@ class Generate {
 
 		return true;
 	}
+
+	/**
+	 * Generate a review.
+	 * @param  [type] $from     [description]
+	 * @param  [type] $customer [description]
+	 * @return boolean False is there is no existing products, true otherwise.
+	 */
+	public static function review( $from, $customer ) {
+		global $wpdb;
+
+		/*
+		 * TODO It is possible to generate a review for a given product that the
+		 * author already reviewed.
+		 * This behavior needs to be corrected.
+		 */
+
+		$arg = array (
+			'post_type' => 'product'
+		);
+
+		/*
+		 * Get all the posts whom type is product.
+		 * TODO Use wc_get_products() instead.
+		 */
+		$product_posts = get_posts( $arg );
+
+		/*
+		 * If there is no existing products we exit now.
+		 * Indeed, we will not add a product because we can not guess which type of
+		 * product we have to add (book or food).
+		 * Moreover it is possible than data were not seeded.
+		 */
+		if ( empty( $product_posts ) ) {
+			return false;
+		}
+
+		// use the factory to create a Faker\Generator instance
+		$faker = \Faker\Factory::create();
+
+		$user = false;
+		// if no customer, review is for a guest
+		if ( $customer ) {
+			// have an int, find the customer - otherwise create a customer
+			if ( is_int( $customer ) ) {
+				// find matching user
+				$wpUser = get_user_by( 'ID', $customer );
+				$user = $wpUser ? $customer : false;
+
+				// make sure $from is at most the # of days ago customer was created
+				$registeredDiff = Carbon::parse($wpUser->user_registered)->diffInDays(Carbon::now());
+				$from = $registeredDiff < $from ? $registeredDiff + 1 : $from;
+			} else {
+				$user = self::customer( $from );
+			}
+		}
+
+		// dates for the review
+		$gmt_offset = get_option('gmt_offset');
+		$day = rand(0, $from);
+		$hour = rand(0, 23);
+		$minute = rand(1, 5);
+		$new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour") );
+		$gmt_new_date = date( 'Y-m-d H:i:s', strtotime("-$day day -$hour hour -$gmt_offset hour") );
+
+		// no user? let's generate guest info
+		if (! $user) {
+			$info = Helpers::userInfo();
+			$email = $info['email'];
+			$author_name = $info['first_name'];
+		} else { // Otherwise take information about the user.
+			$user_info = get_userdata($user);
+			$email = $user_info->user_email;
+			$author_name = $user_info->display_name;
+		}
+
+		$data = array(
+			/*
+			 * Get a random product post ID in all product posts IDs.
+			 * The review will be generate for this product.
+			 */
+			'comment_post_ID' => $product_posts[mt_rand( 0, count($product_posts) - 1 )]->ID,
+			'comment_author' => $author_name,
+			'comment_author_email' => $email,
+			// This field seems not important so we let it empty.
+			'comment_author_url' => '',
+			// Generate a fake paragraph.
+			'comment_content' => $faker->paragraph( 1 ),
+			// We need to set comment_type as review to generate a review.
+			'comment_type' => 'review',
+			// A review is not a response to another comment.
+			'comment_parent' => 0,
+			/*
+			 * Either the author is a guest and its user_di will be 0, otherwise it is
+			 * the author id.
+			 */
+			'user_id' => absint( $user ),
+			// Generate a fake IP.
+			'comment_author_IP' => $faker->ipv4,
+			// Generate a fake user agent.
+			'comment_agent' => $faker->userAgent,
+			// Use generated above date.
+			'comment_date' => $gmt_new_date,
+			'comment_date_gmt' => $gmt_new_date,
+			// Auto-approve the newly generate review.
+			'comment_approved' => 1,
+		);
+
+		// Insert the reviews inside the database.
+		$comment_id = wp_new_comment( $data );
+
+		/*
+		 * Add the rating to the comment_meta table.
+		 * The meta key is 'rating' and its value is randomly chosen in [1, 5].
+		 * TODO It can be good to find another way of assigning rating since for a
+		 * big number of review on one product the average rating will tend to be
+		 * 2.5.
+		 */
+		add_comment_meta( $comment_id, 'rating', rand( 1, 5 ) );
+
+		return true;
+	}
 }
