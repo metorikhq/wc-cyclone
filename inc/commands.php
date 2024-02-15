@@ -199,6 +199,111 @@ class Commands extends WP_CLI_Command {
 	}
 
 	/**
+	 * Generates fake reviews to existing products using the WC Review Simulator plugin.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <amount>
+	 * : The amount of review to generate.
+	 *
+	 * [--from=<from>]
+	 * : The number of days from now to start creating orders from
+	 * ---
+	 * default: 90
+	 * ---
+	 *
+	 * [--customers=<customers>]
+	 * : Whether or not to create customers too - defaults to false.
+	 *
+	 * [--auto-approve]
+	 * : Auto-approve the generated reviews.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp cyclone orders 200 --from=50
+	 *
+	 * @when before_wp_load
+	 */
+	public function reviews( $args, $assoc_args ) {
+		global $wpdb;
+
+		// handle args
+		list( $amount ) = $args;
+		$from = isset($assoc_args['from']) ? $assoc_args['from'] : 90;
+
+		// Chances of it being an existing customer, new customer or guest
+		$chances = apply_filters('wc_cyclone_order_customer_chances', [
+			'existing' => 25,
+			'new' => 60,
+			'guest' => 15,
+		]);
+
+		$auto_approve = WP_CLI\Utils\get_flag_value($assoc_args, 'auto-approve', false);
+
+		if ( $auto_approve ) {
+			/*
+			 * We first need to save actual values of this options to be able to
+			 * restore them to their values at the end of this function.
+			 */
+			$comment_moderation = get_option('comment_moderation');
+			$comment_whitelist = get_option('comment_whitelist');
+
+			// We then set those options to false so reviews will be auto-approved.
+			update_option('comment_moderation', false);
+			update_option('comment_whitelist', false);
+		}
+
+		// create progress bar
+		$progress = \WP_CLI\Utils\make_progress_bar( 'Generating review', $amount );
+
+		for($x = 0; $x < $amount; $x++) {
+			// Figure out the customer type
+			$customer = Helpers::getRandomWeightedElement($chances);
+			switch($customer) {
+				case 'existing';
+					// Get random customer ID where ID is not 1 (presumed admin ID)
+					$customer = intval($wpdb->get_var("SELECT ID FROM $wpdb->users WHERE id <> 1 ORDER BY RAND() LIMIT 1"));
+					break;
+				case 'new';
+					$customer = true;
+					break;
+				case 'guest';
+				default;
+					$customer = false;
+					break;
+			}
+
+			/*
+			 * The only case where this function returns false is when the DB contains
+			 * no product.
+			 */
+			if ( ! Generate::review( $from, $customer ) ) {
+				$err = true;
+				break;
+			}
+
+			// +1 for progress
+			$progress->tick();
+		}
+
+		// progress finished
+		$progress->finish();
+
+		// Before exiting we need to put things in the same state we found them.
+		if ( $auto_approve ) {
+			update_option('comment_moderation', $comment_moderation);
+			update_option('comment_whitelist', $comment_whitelist);
+		}
+
+		if ( $err ) {
+			WP_CLI::error( 'You need to add product first. Please run `wp cyclone products n` where n is greater than 0 to get started.' );
+		}
+
+		// success message
+		WP_CLI::success( $amount . ' reviews generated from ' . $from . ' days ago!' );
+	}
+
+	/**
 	 * Generates fake customers using the WC Order Simulator plugin.
 	 *
 	 * ## OPTIONS
