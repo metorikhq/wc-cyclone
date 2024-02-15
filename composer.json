@@ -1,7 +1,7 @@
 {
     "require": {
-        "fzaninotto/faker": "^1.6",
-        "crewlabs/unsplash": "^2.2",
-        "nesbot/carbon": "^1.21"
+        "fzaninotto/faker": "^1.9",
+        "crewlabs/unsplash": "^3.2",
+        "nesbot/carbon": "^2.72"
     }
 }

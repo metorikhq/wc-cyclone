@@ -19,7 +19,7 @@ class Commands extends WP_CLI_Command {
 	 * Seed WC Cyclone with data to use when creating products.
 	 *
 	 * Set the Unsplash APP ID for WC Cyclone to use.
-	 * 
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp cyclone unsplash
@@ -34,7 +34,7 @@ class Commands extends WP_CLI_Command {
 
 	/**
 	 * Seed WC Cyclone with data to use when creating products.
-	 * 
+	 *
 	 * ## OPTIONS
 	 *
 	 * [--type=<type>]
@@ -44,7 +44,7 @@ class Commands extends WP_CLI_Command {
 	 * options:
 	 *  - books
 	 *  - food
-	 * 
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp cyclone seed
@@ -59,7 +59,7 @@ class Commands extends WP_CLI_Command {
 		/**
 		 * Client.
 		 */
-		\Crew\Unsplash\HttpClient::init([
+		\Unsplash\HttpClient::init([
 		    'applicationId' => $app,
 		]);
 
@@ -83,8 +83,8 @@ class Commands extends WP_CLI_Command {
 
 		// get collection
 		try {
-			$collection = \Crew\Unsplash\Collection::find($collectionID);
-		} catch(\Crew\Unsplash\Exception $e) {
+			$collection = \Unsplash\Collection::find($collectionID);
+		} catch(\Unsplash\Exception $e) {
 			WP_CLI::error( "No! Collection doesn\'t exist for " . $collectionID . "." );
 			return;
 		}
@@ -138,7 +138,7 @@ class Commands extends WP_CLI_Command {
 	 *
 	 * [--from=<from>]
 	 * : The number of days from now to start creating orders from
-	 * 
+	 *
 	 * [--customers=<customers>]
 	 * : Whether or not to create customers too - defaults to false.
 	 * ---
@@ -293,7 +293,7 @@ class Commands extends WP_CLI_Command {
 		// success message
 		WP_CLI::success( $success . '/' . $amount . ' products generated!' );
 	}
-	
+
 }
 
 WP_CLI::add_command( 'cyclone', 'Cyclone\Commands' );
