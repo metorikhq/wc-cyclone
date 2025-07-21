@@ -1,6 +1,6 @@
 {
     "require": {
-        "fzaninotto/faker": "^1.9",
+        "fakerphp/faker": "^1.24",
         "crewlabs/unsplash": "^3.2",
         "nesbot/carbon": "^2.72"
     }
